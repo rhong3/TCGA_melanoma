@@ -10,3 +10,4 @@ annotation <- select(org.Hs.eg.db, keys=unique(SAAV$UNIPROT), columns=c('UNIPROT
 SAAV.out = merge(SAAV, annotation, by="UNIPROT")
 
 write.csv(SAAV.out, 'Data/Melanoma proteome/SAAV.csv', row.names = FALSE)
+
