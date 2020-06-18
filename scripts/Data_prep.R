@@ -10,8 +10,8 @@ library(RColorBrewer)
 library(circlize)
 
 
-SAAV <- read_excel("Data/Melanoma proteome/SAAVs identification.xlsx", sheet = "summary")
-SAAV$UNIPROT = str_split_fixed(SAAV$Master.Protein.Accession, "-", 2)[,1]
+SAAV <- read_excel("Data/Melanoma proteome/MM List of peptides with SAAVs.xlsx")
+SAAV$UNIPROT = SAAV$Canonical.Accession
 annotation <- select(org.Hs.eg.db, keys=unique(SAAV$UNIPROT), columns=c('UNIPROT', 'SYMBOL', 'ENTREZID'), keytype="UNIPROT")
 SAAV.out = merge(SAAV, annotation, by="UNIPROT")
 
@@ -20,20 +20,14 @@ write.csv(SAAV.out, 'Data/Melanoma proteome/SAAV.csv', row.names = FALSE)
 
 
 SAAV <- read.csv("~/Documents/TCGA_melanoma/Data/Melanoma proteome/SAAV.csv")
-skcm <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_RNA_Seq_v2_expression_median.txt")
-uvm <- read.delim("~/Documents/TCGA_melanoma/Data/uvm_tcga_pan_can_atlas_2018/data_RNA_Seq_v2_expression_median.txt")
-rnaseq = merge(skcm, uvm, by=c('Hugo_Symbol', 'Entrez_Gene_Id'))
-rnaseq[, 3:525] = log2(as.matrix(rnaseq[, 3:525])+1)
+rnaseq <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_RNA_Seq_v2_expression_median.txt")
+rnaseq[, 3:445] = log2(as.matrix(rnaseq[, 3:445])+1)
 rnaseq.saav = rnaseq[(rnaseq$Hugo_Symbol %in% unique(SAAV$SYMBOL)),]
 
-skcm.clinical <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_clinical_sample.txt", comment.char="#")
-uvm.clinical <- read.delim("~/Documents/TCGA_melanoma/Data/uvm_tcga_pan_can_atlas_2018/data_clinical_sample.txt", comment.char="#")
-clinical = rbind(skcm.clinical, uvm.clinical)
+clinical <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_clinical_sample.txt", comment.char="#")
 clinical$SAMPLE_ID=gsub('-','.', clinical$SAMPLE_ID)
 clinical = clinical[ , c('PATIENT_ID', 'SAMPLE_ID', 'CANCER_TYPE_DETAILED', 'ANEUPLOIDY_SCORE', 'SAMPLE_TYPE')]
-skcm.patient = read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_clinical_patient.txt", comment.char="#")
-uvm.patient = read.delim("~/Documents/TCGA_melanoma/Data/uvm_tcga_pan_can_atlas_2018/data_clinical_patient.txt", comment.char="#")
-patient = rbind(skcm.patient, uvm.patient)
+patient = read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_clinical_patient.txt", comment.char="#")
 patient = patient[, c('PATIENT_ID', 'AGE', 'SEX', 'AJCC_PATHOLOGIC_TUMOR_STAGE', 'WEIGHT', 'DSS_MONTHS')]
 
 patient.clinical = merge(patient, clinical, by="PATIENT_ID")
@@ -47,14 +41,14 @@ rnaseq.saav = rnaseq.saav[, -c(1,2)]
 patient.clinical.trans = patient.clinical.trans[, colnames(patient.clinical.trans) %in% colnames(rnaseq.saav)]
 
 combined = rbind(rnaseq.saav, patient.clinical.trans)
-combined = rbind(combined[687:694,], combined[1:686,])
+combined = rbind(combined[748:755,], combined[1:747,])
 write.csv(combined, 'Data/SAAV_RNAseq.csv', row.names = TRUE)
 
 # col_fun1 = colorRamp2(c(0, 0.05), c("white", "green"))
 # col_fun2 = colorRamp2(c(0, 10000), c("white","blue"))
 # col_fun3 = colorRamp2(c(1,4), c("white", "orange"))
 # col_fun4 = colorRamp2(c(0, 1), c("white", "purple"))
-gn = rowAnnotation(gene.name = anno_text(row.names(combined)[9:694],
+gn = rowAnnotation(gene.name = anno_text(row.names(combined)[9:755],
                                          location = 0.5, just = "center"))
 
 
@@ -79,7 +73,7 @@ dev.off()
 
 
 
-non.rnaseq.saav = rnaseq[-(rnaseq$Hugo_Symbol %in% unique(SAAV$SYMBOL)), 3:525]
+non.rnaseq.saav = rnaseq[-(rnaseq$Hugo_Symbol %in% unique(SAAV$SYMBOL)), 3:445]
 MW = data.frame(RNAseq=c(as.matrix(rnaseq.saav)), group='SAAV')
 MWn = data.frame(RNAseq=c(as.matrix(non.rnaseq.saav)), group='nonSAAV')
 MW = rbind(MW, MWn)
