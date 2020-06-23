@@ -249,9 +249,29 @@ ggscatter(RNA_PROT_sum_non_corum, x = "RNA_Median", y = "PROT_Median",
   theme(plot.title = element_text(hjust=0.5))
 dev.off()
 
+# Gene to chromosome
+library(org.Hs.eg.db)
+library(org.Hs.egCHR)
+library(dplyr)
 
+RNA_PROT_sum = read.csv("Data/RNA_PROT_sum.csv")
+ENT = select(org.Hs.eg.db, as.character(RNA_PROT_sum$`Gene.name`), c("ENTREZID", "CHR",  'MAP'), "ALIAS")
+colnames(ENT) = gsub('ALIAS', 'Gene.name', colnames(ENT))
+RNA_PROT_sum = merge(ENT, RNA_PROT_sum, by='Gene.name')
 
+RNA_PROT_sum$CORUM = "No"
+library(MoonFinder)
+data("corumModuleList")
+corum_gene=c()
+for (corum in corumModuleList){
+  corum_gene=c(corum_gene, corum)
+}
 
-theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-                   panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+for (row in 1:nrow(RNA_PROT_sum)){
+  if (RNA_PROT_sum[row, "Gene.name"] %in% corum_gene){
+    RNA_PROT_sum[row, "CORUM"] = "Yes"
+  }
+}
+
+write.csv(RNA_PROT_sum, 'Data/RNA_PROT_sum_full.csv')
 
