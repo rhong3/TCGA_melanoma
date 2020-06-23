@@ -22,6 +22,10 @@ write.csv(SAAV.out, 'Data/Melanoma proteome/SAAV.csv', row.names = FALSE)
 SAAV <- read.csv("~/Documents/TCGA_melanoma/Data/Melanoma proteome/SAAV.csv")
 rnaseq <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_RNA_Seq_v2_expression_median.txt")
 rnaseq[, 3:445] = log2(as.matrix(rnaseq[, 3:445])+1)
+library(matrixStats)
+library(dplyr)
+rnaseq[, 3:445]  = mutate_all(rnaseq[, 3:445] , function(x) as.numeric(as.character(x)))
+write.csv(rnaseq, 'Data/log2_RNAseq.csv', row.names = FALSE)
 rnaseq.saav = rnaseq[(rnaseq$Hugo_Symbol %in% unique(SAAV$SYMBOL)),]
 
 clinical <- read.delim("~/Documents/TCGA_melanoma/Data/skcm_tcga_pan_can_atlas_2018/data_clinical_sample.txt", comment.char="#")
