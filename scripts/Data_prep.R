@@ -139,7 +139,7 @@ patient.clinical.trans$CORUM = NA
 combined = rbind(RNAseq, patient.clinical.trans)
 
 
-combined = rbind(combined[20524:20531,], combined[1:20523,])
+combined = rbind(combined[20532:20539,], combined[1:20531,])
 write.csv(combined, 'Data/clinical_RNAseq.csv', row.names = TRUE)
 
 gn = rowAnnotation(CORUM = combined$CORUM)
