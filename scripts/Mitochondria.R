@@ -31,7 +31,7 @@ colnames(Postmortem) = gsub('0PG.ProteinAccessions', "UNIPROT", colnames(Postmor
 Postmortem = merge(Postmortem, annotation, by="UNIPROT")
 
 
-RNAseq <- read_csv("Data/log2_RNAseq.csv")
+RNAseq <- read.csv("Data/log2_RNAseq.csv")
 RNAseq = na.omit(RNAseq)
 
 # Venn plot of RNA, PROT

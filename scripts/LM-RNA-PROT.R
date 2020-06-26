@@ -275,3 +275,49 @@ for (row in 1:nrow(RNA_PROT_sum)){
 
 write.csv(RNA_PROT_sum, 'Data/RNA_PROT_sum_full.csv')
 
+# Check coverage in neXtProt
+library(org.Hs.eg.db)
+library(plyr)
+nextprot <- read_csv("Data/nextprot_ac_list_all.txt", col_names = FALSE)
+nextprot$UNIPROT = 'XX'
+xx = strsplit(nextprot$X1, '_')
+for (i in 1:length(xx)){
+  nextprot[i, 2] = xx[[i]][2]
+}
+annotation <- select(org.Hs.eg.db, keys=unique(nextprot$UNIPROT), columns=c('UNIPROT', 'SYMBOL', 'ALIAS'), keytype="UNIPROT")
+annotation = na.omit(annotation)
+nextprot_gene = na.omit(unique(annotation$SYMBOL))
+
+RNAseq <- read_csv("Data/log2_RNAseq.csv")
+RNAseq_gene = na.omit(unique(RNAseq$Hugo_Symbol))
+inter = intersect(nextprot_gene, RNAseq_gene)
+
+# Venn plot of RNA, PROT
+library(VennDiagram)
+venn.diagram(
+  x = list(nextprot_gene, RNAseq_gene),
+  category.names = c("Genes in neXtProt (18954)" , "Genes in transcriptomics (20501)"),
+  filename = 'Results/MM500/neXtProt_RNA_venn.png',
+  output = TRUE ,
+  imagetype="png" ,
+  height = 700 , 
+  width = 700 , 
+  resolution = 300,
+  compression = "lzw",
+  lwd = 1,
+  col=c("#440154ff", '#21908dff'),
+  fill = c(alpha("#440154ff",0.5), alpha('#21908dff',0.5)),
+  cex = 0.5,
+  fontfamily = "sans",
+  cat.cex = 0.3,
+  cat.default.pos = "outer",
+  cat.pos = c(-27, 27),
+  cat.dist = c(0.055, 0.055),
+  cat.fontfamily = "sans",
+  cat.col = c("#440154ff", '#21908dff')
+)
+
+
+
+
+
