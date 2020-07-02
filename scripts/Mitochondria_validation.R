@@ -40,8 +40,9 @@ MCM = RNAseq[RNAseq$Hugo_Symbol %in% c('MCM2', 'MCM3', 'MCM4', 'MCM5', 'MCM6', '
 row.names(MCM) = MCM$Hugo_Symbol
 MCM = MCM[, -c(1,2)]
 MCM.numeric <- as.matrix(sapply(MCM, as.numeric))
-row.names(MCM.numeric) = row.names(MCM)[1:6]
-MCM.clinical = rbind(patient.clinical, MCM)
+row.names(MCM.numeric) = row.names(MCM)
+MCM.clinical = rbind(patient.clinical, MCM.numeric)
+
 
 anno = HeatmapAnnotation(age = as.numeric(as.matrix(MCM.clinical[1,1:443])), 
                          gender = as.character(as.matrix(MCM.clinical[2,1:443])), 
@@ -57,7 +58,7 @@ anno = HeatmapAnnotation(age = as.numeric(as.matrix(MCM.clinical[1,1:443])),
 breaksList = seq(min(MCM.numeric), max(MCM.numeric), by=2)
 col = colorRampPalette(rev(brewer.pal(n = 10, name = "RdYlBu")))(length(breaksList))
 pdf("Results/Mitochondria/MCM_HM_RNAseq.pdf", height = 8, width = 30)
-hp = Heatmap(MCM.numeric, col = col, column_title = paste("MCM RNAseq log2-transformed Median Expression"), top_annotation = anno,
+hp = Heatmap(as.matrix(MCM.clinical[11:16,]), col = col, column_title = paste("MCM RNAseq log2-transformed Median Expression"), top_annotation = anno,
              cluster_rows = FALSE, cluster_columns = TRUE, show_row_names = TRUE, show_column_names = FALSE, name = "value", heatmap_legend_param = list(direction = "vertical"))
 draw(hp, heatmap_legend_side = "bottom", 
      annotation_legend_side = "right", merge_legend = TRUE,)
